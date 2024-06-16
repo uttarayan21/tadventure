@@ -1,5 +1,4 @@
 use macroquad::prelude::*;
-use once_cell::sync::Lazy;
 
 pub struct Character {
     pos: Vec2,
@@ -9,15 +8,26 @@ pub struct Character {
 
 // static BACKGROUND_TEXTURE: Lazy<Texture2D> =
 //     Lazy::new(|| Texture2D::from_file_with_format(include_bytes!("../assets/grass.png"), None));
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "Window Conf".to_owned(),
+        fullscreen: true,
+        platform: miniquad::conf::Platform {
+            linux_backend: miniquad::conf::LinuxBackend::WaylandWithX11Fallback,
+            ..Default::default()
+        },
+        ..Default::default()
+    }
+}
 
-#[macroquad::main("Tadventure")]
+#[macroquad::main(window_conf)]
 async fn main() {
     let mut character = Character::new(
         Vec2::new(100.0, 100.0),
         Vec2::new(0.0, 0.0),
         vec2(0f32, 0f32),
     );
-    let mut cursor = Cursor::new();
+    let mut cursor = Cursor::default();
 
     loop {
         clear_background(GREEN);
@@ -64,17 +74,12 @@ impl Character {
     }
 }
 
+#[derive(Default)]
 pub struct Cursor {
     pos: Vec2,
 }
 
 impl Cursor {
-    pub fn new() -> Self {
-        Self {
-            pos: vec2(0.0, 0.0),
-        }
-    }
-
     pub fn handle_mouse(&mut self) {
         let mouse_pos = mouse_position();
         self.pos = vec2(mouse_pos.0, mouse_pos.1);
