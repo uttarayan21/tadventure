@@ -6,11 +6,9 @@ pub struct Character {
     velocity: Vec2,
 }
 
-// static BACKGROUND_TEXTURE: Lazy<Texture2D> =
-//     Lazy::new(|| Texture2D::from_file_with_format(include_bytes!("../assets/grass.png"), None));
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Window Conf".to_owned(),
+        window_title: "Balls".to_owned(),
         fullscreen: true,
         platform: miniquad::conf::Platform {
             linux_backend: miniquad::conf::LinuxBackend::WaylandWithX11Fallback,
@@ -30,13 +28,10 @@ async fn main() {
     let mut cursor = Cursor::default();
 
     loop {
-        clear_background(GREEN);
-        // draw_texture(&BACKGROUND_TEXTURE, 0.0, 0.0, WHITE);
         character.handle_inputs();
         character.draw();
         cursor.handle_mouse();
         cursor.draw();
-
         next_frame().await
     }
 }
@@ -53,7 +48,9 @@ impl Character {
     pub fn handle_inputs(&mut self) {
         self.handle_mouse();
         let distance = self.pos.distance(self.pointing);
-        self.pos = self.pos.move_towards(self.pointing, distance / 15f32);
+        // increase the velocity scaled to the distance
+        self.velocity = (self.pointing - self.pos).normalize() * distance / 15f32;
+        self.move_with_velocity();
     }
 
     pub fn handle_mouse(&mut self) {
@@ -71,6 +68,10 @@ impl Character {
             5.0,
             RED,
         );
+    }
+
+    pub fn move_with_velocity(&mut self) {
+        self.pos += self.velocity;
     }
 }
 
@@ -95,6 +96,35 @@ impl Cursor {
     }
 }
 
+/// The basic enemy data
+/// This condaions just he enemy position
+/// and the enemy class
+/// The enemy just moves towards the player constantly if there's nothing in the way.
 pub struct Enemy {
+    /// The current position of the enemy
     pos: Vec2,
+    /// The class of the enemy
+    class: EnemyClass,
+    /// Health of the enemy
+    health: u32,
+    /// Velocity of the enemy moving towards the player // This is normalized to 1
+    velocity: Vec2,
+}
+
+pub enum EnemyClass {
+    Melee,
+    Ranged,
+    Boss,
+}
+
+/// The world struct
+/// This contains the player, the enemies, and the center of the world
+pub struct World {
+    player: Character,
+    enemies: Vec<Enemy>,
+    center: Vec2,
+}
+
+pub fn move_with_velocity(pos: &mut Vec2, velocity: Vec2) {
+    *pos += velocity;
 }
