@@ -48,18 +48,26 @@
           inherit src;
           buildInputs = with pkgs;
             [
-              alsa-lib
+              # alsa-lib
               # wayland
               # xorg.libX11
               # xorg.libXi
               # libGL
             ]
             ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
-              libiconv
-              # pkgs.darwin.apple_sdk.frameworks.CoreServices
-              # pkgs.darwin.apple_sdk.frameworks.Security
-              # pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
-              # pkgs.darwin.apple_sdk.frameworks.Foundation
+              pkgs.darwin.apple_sdk.frameworks.Foundation
+              pkgs.darwin.apple_sdk.frameworks.CoreServices
+              pkgs.darwin.apple_sdk.frameworks.Security
+              pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+              pkgs.darwin.apple_sdk.frameworks.System
+              pkgs.darwin.apple_sdk.frameworks.ImageIO
+              pkgs.darwin.apple_sdk.frameworks.AppKit
+              pkgs.darwin.apple_sdk.frameworks.Vision
+              pkgs.darwin.apple_sdk.frameworks.CoreGraphics
+              pkgs.darwin.apple_sdk.frameworks.Metal
+              pkgs.darwin.apple_sdk.frameworks.AVFoundation
+              pkgs.darwin.apple_sdk.frameworks.MetalKit
+              # "-lsystem" "-framework" "Foundation" "-framework" "ImageIO" "-framework" "AppKit" "-framework" "Vision" "-framework" "CoreGraphics" "-framework" "Metal" "-framework" "AVFoundation" "-framework" "CoreMidi" "-framework" "MetalKit" "-lobjc" "-liconv" "-lSystem" "-lc" "-lm"
             ]; # Inputs required for the TARGET system
 
           nativeBuildInputs = with pkgs; [
@@ -70,12 +78,6 @@
           # LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
           # For using pkg-config that many libraries require
           # PKG_CONFIG_PATH = lib.makeSearchPath "lib/pkgconfig" (with pkgs;[ openssl.dev zlib.dev ]);
-          LD_LIBRARY_PATH = builtins.concatStringsSep ":" [
-            "${pkgs.xorg.libX11}/lib"
-            "${pkgs.xorg.libXi}/lib"
-            "${pkgs.libGL}/lib"
-            "${pkgs.wayland}/lib"
-          ];
         };
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
       in {
@@ -96,32 +98,34 @@
             });
         };
         packages = rec {
-          tadventure-unwrapped = pkgs.rustPlatform.buildRustPackage {
-            pname = "tadventure";
-            version = "0.1.0";
-            cargoLock = {
-              lockFile = "${src}/Cargo.lock";
-            };
-            inherit src;
-          };
-          tadventure = pkgs.buildFHSEnv {
-            name = "tadventure";
-            targetPkgs = pkgs:
-              with pkgs; [
-                tadventure-unwrapped
-                xorg.libX11
-                xorg.libXi
-                libGL
-                egl-wayland
-              ];
-            multiPkgs = pkgs:
-              with pkgs; [
-                alsa-lib
-              ];
-            runScript = ''
-              ${tadventure-unwrapped}/bin/tadventure
-            '';
-          };
+          tadventure-unwrapped = craneLib.buildPackage ({
+              pname = "tadventure";
+              version = "0.1.0";
+              inherit src cargoArtifacts;
+            }
+            // commonArgs);
+          tadventure =
+            if pkgs.stdenv.isLinux
+            then
+              (pkgs.buildFHSEnv {
+                name = "tadventure";
+                targetPkgs = pkgs:
+                  with pkgs; [
+                    tadventure-unwrapped
+                    xorg.libX11
+                    xorg.libXi
+                    libGL
+                    egl-wayland
+                  ];
+                multiPkgs = pkgs:
+                  with pkgs; [
+                    alsa-lib
+                  ];
+                runScript = ''
+                  ${tadventure-unwrapped}/bin/tadventure
+                '';
+              })
+            else tadventure-unwrapped;
           default = tadventure;
         };
 
@@ -133,6 +137,14 @@
               cargo-nextest
               cargo-criterion
               trunk
+            ];
+          }
+          // lib.optionalAttrs (pkgs.stdenv.isLinux) {
+            LD_LIBRARY_PATH = builtins.concatStringsSep ":" [
+              "${pkgs.xorg.libX11}/lib"
+              "${pkgs.xorg.libXi}/lib"
+              "${pkgs.libGL}/lib"
+              "${pkgs.wayland}/lib"
             ];
           });
       }

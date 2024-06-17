@@ -60,14 +60,6 @@ impl Character {
 
     pub fn draw(&self) {
         draw_circle(self.pos.x, self.pos.y, 16.0, BLUE);
-        draw_line(
-            self.pos.x,
-            self.pos.y,
-            self.pointing.x,
-            self.pointing.y,
-            5.0,
-            RED,
-        );
     }
 
     pub fn move_with_velocity(&mut self) {
