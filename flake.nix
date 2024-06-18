@@ -40,7 +40,7 @@
           # Extra targets if required
         };
         craneLib = (crane.mkLib pkgs).overrideToolchain stableToolchain;
-        src = craneLib.cleanCargoSource (craneLib.path ./.);
+        src = craneLib.path ./.;
         commonArgs = {
           inherit src;
           buildInputs = with pkgs;
@@ -61,7 +61,7 @@
           ];
         };
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-      in {
+      in rec {
         checks = {
           tadventure-clippy = craneLib.cargoClippy (commonArgs
             // {
@@ -111,8 +111,33 @@
             inherit src;
             doCheck = false;
             cargoExtraArgs = "--target wasm32-unknown-unknown";
+            installPhase = ''
+              mkdir -p $out/dist
+              cp target/wasm32-unknown-unknown/release/tadventure.wasm $out/dist/tadventure.wasm
+              cp $src/assets/index.html $out/dist/index.html
+            '';
+            meta.mainProgram = null;
           };
           default = tadventure;
+        };
+
+        apps = {
+          default = let
+            wasm = pkgs.writeShellApplication {
+              # Our shell script name is serve
+              # so it is available at $out/bin/serve
+              name = "tadventure";
+              # Caddy is a web server with a convenient CLI interface
+              runtimeInputs = [pkgs.caddy];
+              text = ''
+                # Serve the current directory on port 8090
+                caddy file-server --listen :8000 --root ${packages.tadventure-wasm}/dist
+              '';
+            };
+          in {
+            type = "app";
+            program = "${wasm}/bin/tadventure";
+          };
         };
 
         devShells.default = (craneLib.overrideToolchain stableToolchainWithRustAnalyzer).devShell (commonArgs
