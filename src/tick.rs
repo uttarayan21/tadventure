@@ -55,3 +55,9 @@ impl<T: Drawable> Drawable for Tick<T> {
         self.ticker.draw()
     }
 }
+
+impl Tick<crate::world::World> {
+    pub fn next_frame(&mut self) {
+        self.ticker.next_frame()
+    }
+}

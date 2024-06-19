@@ -29,15 +29,13 @@ fn window_conf() -> Conf {
 async fn main() {
     let mut cursor = Cursor::default();
     cursor.handle_mouse();
-    let mut world = world::World::new().every(Duration::from_millis(15));
+    let mut world = world::World::new().every(Duration::from_millis(5));
 
     loop {
-        // world.tick();
-        // world.draw();
         cursor.draw();
         world.draw();
         world.tick();
-        world.ticker.next_frame();
+        world.next_frame();
 
         next_frame().await
     }
