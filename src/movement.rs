@@ -8,12 +8,12 @@ pub enum MovementType {
 }
 
 impl MovementType {
-    const FAST: Self = Self::Speed(5.0);
-    const MEDIUM: Self = Self::Speed(3.0);
-    const SLOW: Self = Self::Speed(1.0);
-    const STOP: Self = Self::Speed(0.0);
-    const FASTER: Self = Self::Acceleration(1.0);
-    const SLOWER: Self = Self::Acceleration(-1.0);
+    pub const FAST: Self = Self::Speed(5.0);
+    pub const MEDIUM: Self = Self::Speed(3.0);
+    pub const SLOW: Self = Self::Speed(1.0);
+    pub const STOP: Self = Self::Speed(0.0);
+    pub const FASTER: Self = Self::Acceleration(1.0);
+    pub const SLOWER: Self = Self::Acceleration(-1.0);
 }
 
 #[derive(Debug, Clone, Copy)]
