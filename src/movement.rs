@@ -1,8 +1,19 @@
 use macroquad::prelude::*;
+
+use crate::tick::Tick;
 #[derive(Debug, Clone, Copy)]
 pub enum MovementType {
     Speed(f32),
-    Acceleration(Vec2),
+    Acceleration(f32),
+}
+
+impl MovementType {
+    const FAST: Self = Self::Speed(5.0);
+    const MEDIUM: Self = Self::Speed(3.0);
+    const SLOW: Self = Self::Speed(1.0);
+    const STOP: Self = Self::Speed(0.0);
+    const FASTER: Self = Self::Acceleration(1.0);
+    const SLOWER: Self = Self::Acceleration(-1.0);
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -13,19 +24,25 @@ pub struct Movement {
 }
 
 impl Movement {
-    pub fn tick(&mut self) {
+    fn tick(&mut self) {
         match self.type_ {
             MovementType::Speed(speed) => {
                 self.pos += self.direction * speed;
             }
             MovementType::Acceleration(acceleration) => {
                 self.direction += acceleration;
-                self.direction = self.direction.normalize();
                 self.pos += self.direction;
             }
         }
     }
+
     pub fn pos(&self) -> Vec2 {
         self.pos
+    }
+}
+
+impl Tick for Movement {
+    fn tick(&mut self) {
+        self.tick();
     }
 }

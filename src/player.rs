@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+use crate::{draw::Drawable, tick::Tick};
+
 #[derive(Debug, Default, Clone)]
 pub struct Player {
     pub pos: Vec2,
@@ -9,7 +11,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(pos: Vec2, velocity: Vec2) -> Self {
+    pub fn new(pos: Vec2) -> Self {
         let mouse_pos = mouse_position();
         let pointing = vec2(mouse_pos.0, mouse_pos.1);
         let direction = (pos - pointing).normalize();
@@ -17,23 +19,36 @@ impl Player {
             pos,
             pointing,
             direction,
-            velocity,
+            velocity: vec2(0.0, 0.0),
         }
     }
 
-    pub fn handle_inputs(&mut self) {
+    fn handle_inputs(&mut self) {
         let mouse_pos = mouse_position();
         self.pointing = vec2(mouse_pos.0, mouse_pos.1);
-        self.direction = (self.pos - self.pointing).normalize();
+        self.direction = (self.pointing - self.pos).normalize();
         let distance = self.pos.distance(self.pointing);
         self.velocity = self.direction * distance / 15f32;
     }
 
-    pub fn draw(&self) {
+    fn draw(&self) {
         draw_circle(self.pos.x, self.pos.y, 16.0, BLUE);
     }
 
-    pub fn tick(&mut self) {
+    fn tick(&mut self) {
         self.pos += self.velocity;
+    }
+}
+
+impl Drawable for Player {
+    fn draw(&self) {
+        self.draw();
+    }
+}
+
+impl Tick for Player {
+    fn tick(&mut self) {
+        self.handle_inputs();
+        self.tick();
     }
 }

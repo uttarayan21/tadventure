@@ -1,10 +1,10 @@
+use macroquad::miniquad::window::screen_size;
 use macroquad::prelude::*;
-use miniquad::window::screen_size;
 
-use crate::ecs::Entity;
-use crate::enemy::Enemy;
-use crate::gun::Bullet;
+use crate::draw::Drawable;
+use crate::entity::Entity;
 use crate::player::Player;
+use crate::tick::Tick;
 
 /// The world struct
 /// This contains the player, the enemies, and the center of the world
@@ -15,49 +15,46 @@ pub struct World {
     size: Vec2,
     tick: u64,
     entities: Vec<Entity>,
+    frame_time: f32, // The rolling average frame time for the last 5 frames
 }
 
 impl World {
     pub fn new() -> Self {
-        let (x, y) = screen_size();
-        let center = vec2(x / 2., y / 2.);
-    }
-    pub fn handle_inputs(&mut self) {
-        self.player.handle_inputs();
-    }
-
-    pub fn spawn_enemy(&mut self) {
-        let enemy = Enemy {
-            pos: random_vec2_in_bounds(self.size),
-            health: 100,
-            velocity: vec2(0., 0.),
-        };
-        self.enemies.push(enemy);
+        let size = screen_size();
+        let size = vec2(size.0, size.1);
+        let center = size / 2.0;
+        Self {
+            player: Player::new(center),
+            center,
+            size,
+            ..Default::default()
+        }
     }
 
-    pub fn tick(&mut self) {
-        self.tick += 1;
+    fn tick(&mut self) {
         self.player.tick();
-        let enemies_count = self.enemies.len();
-        if enemies_count < 10 && (macroquad::time::get_time() / (2 * enemies_count) as f64) > 1.0 {
-            self.spawn_enemy();
-        }
-        for enemy in self.enemies.iter_mut() {
-            enemy.velocity = (self.player.pos - enemy.pos).normalize();
-            enemy.pos += enemy.velocity;
-        }
-        for bullet in self.bullets.iter_mut() {
-            // bullet.tick();
-        }
-        if self.tick % 12 == 0 {
-            // self.bullets.push(Bullet::shoot(self.player.pos));
-        }
+        self.entities.tick();
+    }
+
+    // fn next_frame(&mut self) {
+    //     let current_frame_time = get_frame_time();
+    //     if self.frame_time == 0.0 {
+    //         self.frame_time = current_frame_time;
+    //     } else {
+    //         self.frame_time = (self.frame_time * 4.0 + current_frame_time) / 5.0;
+    //     }
+    // }
+}
+
+impl Drawable for World {
+    fn draw(&self) {
+        self.player.draw();
+        self.entities.draw();
     }
 }
 
-fn random_vec2_in_bounds(bounds: Vec2) -> Vec2 {
-    vec2(
-        rand::gen_range(0.0, bounds.x),
-        rand::gen_range(0.0, bounds.y),
-    )
+impl Tick for World {
+    fn tick(&mut self) {
+        self.tick()
+    }
 }

@@ -1,11 +1,14 @@
 #![allow(dead_code)]
+use draw::Drawable as _;
+use tick::Tick as _;
 use macroquad::prelude::*;
 mod enemy;
 mod gun;
 mod player;
 mod world;
 mod movement;
-mod ecs;
+mod entity;
+mod tick;
 mod draw;
 
 fn window_conf() -> Conf {
@@ -26,7 +29,6 @@ async fn main() {
     let mut world = world::World::new();
 
     loop {
-        world.handle_inputs();
         world.tick();
         world.draw();
 

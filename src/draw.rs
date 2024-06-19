@@ -27,9 +27,3 @@ impl<T: Drawable> Drawable for &T {
         (*self).draw();
     }
 }
-
-// impl<T: Drawable, I: Iterator<Item = T>> Drawable for I {
-//     fn draw(&self) {
-//         self.for_each(|item| item.draw());
-//     }
-// }

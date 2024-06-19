@@ -1,4 +1,6 @@
 use macroquad::prelude::*;
+
+use crate::draw::Drawable;
 /// The basic enemy data
 /// This condaions just he enemy position
 /// and the enemy class
@@ -21,7 +23,14 @@ impl Enemy {
             velocity,
         }
     }
-    pub fn draw(&self) {
+
+    fn draw(&self) {
         draw_circle(self.pos.x, self.pos.y, 16.0, RED);
+    }
+}
+
+impl Drawable for Enemy {
+    fn draw(&self) {
+        self.draw();
     }
 }

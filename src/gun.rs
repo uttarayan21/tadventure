@@ -16,21 +16,28 @@ impl Bullet {
     }
 }
 
+pub enum GunType {
+    ShotGun,
+    Pistol,
+    Sniper,
+}
+
+/// This is basically an abstraction of a bullet_factory lets say
 pub struct Gun {
+    pub damage: u32,
     pub direction: Vec2,
-    pub bullets: Vec<Bullet>,
+    pub type_: GunType,
 }
 
 impl Gun {
-    pub fn shoot(&mut self, pos: Vec2) {
-        let bullet = Bullet {
+    pub fn shoot(&mut self, pos: Vec2) -> Bullet {
+        Bullet {
             movement: Movement {
                 pos,
                 direction: self.direction,
                 type_: MovementType::Speed(5.0),
             },
-            damage: 10,
-        };
-        self.bullets.push(bullet);
+            damage: self.damage,
+        }
     }
 }
