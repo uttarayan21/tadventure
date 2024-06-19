@@ -1,15 +1,17 @@
 #![allow(dead_code)]
+use std::time::Duration;
+
 use draw::Drawable as _;
-use tick::Tick as _;
 use macroquad::prelude::*;
-mod enemy;
-mod gun;
-mod player;
-mod world;
-mod movement;
-mod entity;
-mod tick;
+use tick::{TickEvery, Ticker as _};
 mod draw;
+mod enemy;
+mod entity;
+mod gun;
+mod movement;
+mod player;
+mod tick;
+mod world;
 
 fn window_conf() -> Conf {
     Conf {
@@ -26,14 +28,17 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut cursor = Cursor::default();
-    let mut world = world::World::new();
+    cursor.handle_mouse();
+    let mut world = world::World::new().every(Duration::from_millis(15));
 
     loop {
-        world.tick();
-        world.draw();
-
-        cursor.handle_mouse();
+        // world.tick();
+        // world.draw();
         cursor.draw();
+        world.draw();
+        world.tick();
+        world.ticker.next_frame();
+
         next_frame().await
     }
 }

@@ -1,12 +1,12 @@
-use crate::{draw::Drawable, enemy::Enemy, gun::Bullet, player::Player, tick::Tick};
+use crate::{draw::Drawable, enemy::Enemy, gun::Bullet, player::Player, tick::Ticker};
 
 pub trait EntityTrait {
-    fn as_tick(&mut self) -> &mut dyn Tick;
+    fn as_tick(&mut self) -> &mut dyn Ticker;
     fn as_draw(&self) -> &dyn Drawable;
 }
 
-impl<T: Tick + Drawable> EntityTrait for T {
-    fn as_tick(&mut self) -> &mut dyn Tick {
+impl<T: Ticker + Drawable> EntityTrait for T {
+    fn as_tick(&mut self) -> &mut dyn Ticker {
         self
     }
 
@@ -21,7 +21,7 @@ impl Drawable for Box<dyn EntityTrait> {
     }
 }
 
-impl Tick for Box<dyn EntityTrait> {
+impl Ticker for Box<dyn EntityTrait> {
     fn tick(&mut self) {
         self.as_tick().tick();
     }
@@ -76,7 +76,7 @@ impl Drawable for Entity {
     }
 }
 
-impl Tick for Entity {
+impl Ticker for Entity {
     fn tick(&mut self) {
         match self {
             Entity::Player(player) => player.tick(),

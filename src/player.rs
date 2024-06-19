@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::{draw::Drawable, gun::Gun, tick::Tick};
+use crate::{draw::Drawable, gun::Gun, tick::Ticker};
 
 #[derive(Debug, Default, Clone)]
 pub struct Player {
@@ -37,9 +37,14 @@ impl Player {
     }
 
     fn tick(&mut self) {
+        self.handle_inputs();
+        self.direction = (self.pointing - self.pos).normalize();
+        let distance = self.pos.distance(self.pointing);
+        self.velocity = self.direction * distance / 15f32;
         self.pos += self.velocity;
         self.gun.as_mut().map(|gun| {
             gun.pos = self.pos;
+            gun.direction = self.direction;
             gun.shoot();
             gun.tick();
         });
@@ -52,12 +57,8 @@ impl Drawable for Player {
     }
 }
 
-impl Tick for Player {
+impl Ticker for Player {
     fn tick(&mut self) {
-        self.handle_inputs();
-        self.direction = (self.pointing - self.pos).normalize();
-        let distance = self.pos.distance(self.pointing);
-        self.velocity = self.direction * distance / 15f32;
-        self.tick();
+        self.tick()
     }
 }

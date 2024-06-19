@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::tick::Tick;
+use crate::tick::Ticker;
 #[derive(Debug, Clone, Copy)]
 pub enum MovementType {
     Speed(f32),
@@ -41,7 +41,7 @@ impl Movement {
     }
 }
 
-impl Tick for Movement {
+impl Ticker for Movement {
     fn tick(&mut self) {
         self.tick();
     }

@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::{draw::Drawable, movement::*, tick::Tick};
+use crate::{draw::Drawable, movement::*, tick::Ticker};
 
 /// The shot made by a player or an enemy
 #[derive(Debug, Clone, Copy)]
@@ -16,7 +16,7 @@ impl Bullet {
     }
 }
 
-impl Tick for Bullet {
+impl Ticker for Bullet {
     fn tick(&mut self) {
         self.movement.tick();
     }
@@ -74,7 +74,7 @@ impl Drawable for Gun {
     }
 }
 
-impl Tick for Gun {
+impl Ticker for Gun {
     fn tick(&mut self) {
         self.bullets.tick();
     }
