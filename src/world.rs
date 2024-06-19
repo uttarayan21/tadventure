@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 use miniquad::window::screen_size;
 
+use crate::ecs::Entity;
 use crate::enemy::Enemy;
 use crate::gun::Bullet;
 use crate::player::Player;
@@ -10,34 +11,19 @@ use crate::player::Player;
 #[derive(Debug, Default)]
 pub struct World {
     player: Player,
-    enemies: Vec<Enemy>,
-    bullets: Vec<Bullet>,
     center: Vec2,
     size: Vec2,
     tick: u64,
+    entities: Vec<Entity>,
 }
 
 impl World {
     pub fn new() -> Self {
         let (x, y) = screen_size();
         let center = vec2(x / 2., y / 2.);
-
-        Self {
-            player: Player::new(center, center, center),
-            enemies: Vec::default(),
-            center,
-            size: vec2(x, y),
-            ..Default::default()
-        }
     }
     pub fn handle_inputs(&mut self) {
         self.player.handle_inputs();
-    }
-
-    pub fn draw(&self) {
-        self.player.draw();
-        self.enemies.iter().for_each(|enemy| enemy.draw());
-        self.bullets.iter().for_each(|bullet| bullet.draw());
     }
 
     pub fn spawn_enemy(&mut self) {
@@ -51,7 +37,7 @@ impl World {
 
     pub fn tick(&mut self) {
         self.tick += 1;
-        self.player.move_with_velocity();
+        self.player.tick();
         let enemies_count = self.enemies.len();
         if enemies_count < 10 && (macroquad::time::get_time() / (2 * enemies_count) as f64) > 1.0 {
             self.spawn_enemy();
@@ -61,10 +47,10 @@ impl World {
             enemy.pos += enemy.velocity;
         }
         for bullet in self.bullets.iter_mut() {
-            bullet.tick();
+            // bullet.tick();
         }
         if self.tick % 12 == 0 {
-            self.bullets.push(Bullet::shoot(self.player.pos));
+            // self.bullets.push(Bullet::shoot(self.player.pos));
         }
     }
 }

@@ -4,6 +4,9 @@ mod enemy;
 mod gun;
 mod player;
 mod world;
+mod movement;
+mod ecs;
+mod draw;
 
 fn window_conf() -> Conf {
     Conf {
