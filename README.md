@@ -1,2 +1,3 @@
 # TAdventure
-<iframe src="https://uttarayan.me/tadventure" width="600" height="400" style="border:none;"></iframe>
+A simple experimental game made in [macroquad.rs](https://macroquad.rs)
+You can try [here](https://uttarayan.me/tadventure) 
