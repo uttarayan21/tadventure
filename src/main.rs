@@ -29,7 +29,7 @@ fn window_conf() -> Conf {
 async fn main() {
     let mut cursor = Cursor::default();
     cursor.handle_mouse();
-    let mut world = world::World::new().every(Duration::from_millis(5));
+    let mut world = world::World::new();
 
     loop {
         cursor.draw();

@@ -152,8 +152,6 @@
 
         devShells.default = (craneLib.overrideToolchain stableToolchainWithRustAnalyzer).devShell (commonArgs
           // {
-            buildInputs = [];
-            nativeBuildInputs = [];
             packages = with pkgs; [
               cargo-nextest
               cargo-criterion
