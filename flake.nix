@@ -15,7 +15,6 @@
   };
 
   outputs = {
-    self,
     crane,
     flake-utils,
     nixpkgs,
@@ -40,7 +39,18 @@
           # Extra targets if required
         };
         craneLib = (crane.mkLib pkgs).overrideToolchain stableToolchain;
-        src = craneLib.path ./.;
+        src = let
+          htmlFilter = path: _type: builtins.match ".*html$" path != null;
+          htmlOrCargo = path: type:
+            (htmlFilter path type) || (craneLib.filterCargoSources path type);
+        in
+          lib.cleanSourceWith {
+            src = ./.;
+            filter = htmlOrCargo;
+            name = "source"; # Be reproducible, regardless of the directory name
+          };
+
+        # src = craneLib.path ./.;
         commonArgs = {
           inherit src;
           buildInputs = with pkgs;
