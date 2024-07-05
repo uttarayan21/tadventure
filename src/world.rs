@@ -1,4 +1,3 @@
-
 use macroquad::miniquad::window::screen_size;
 use macroquad::prelude::*;
 

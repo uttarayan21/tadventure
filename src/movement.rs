@@ -30,7 +30,7 @@ impl Movement {
                 self.pos += self.direction * speed;
             }
             MovementType::Acceleration(acceleration) => {
-                self.direction += acceleration;
+                self.direction *= acceleration;
                 self.pos += self.direction;
             }
         }
